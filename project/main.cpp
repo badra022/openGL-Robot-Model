@@ -1,12 +1,12 @@
-/*************************************
- * Contibutors ::-- Hassan Hosni Abdel_Aleem
- *                  Ahmed Mohamed Mohamed
- *                  Mohamed Khaled Galloul
-************************************/
+/*************************************************
+ * Contibutors ::-- Hassan Hosni Abdel_Aleem     *
+ *                  Mohamed Khaled Galloul       *
+ *                  Ahmed Mohamed Mohamed        *
+**************************************************/
 
 #include <GL/glut.h>
 
-static int body = 0, shoulder1 = 0, shoulder2 = 0, elbow1 = 0, elbow2 = 0, leg1 = 0, knee1 = 0, leg2 = 0, knee2 = 0;
+GLfloat body = 0, shoulder1 = 0, shoulder2 = 0, elbow1 = 0, elbow2 = 0, leg1 = 0, knee1 = 0, leg2 = 0, knee2 = 0;
 int moving, startx, starty;
 
 
@@ -23,7 +23,7 @@ void init(void)
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glPushMatrix();
+    glPushMatrix();             /* DRAWING STACK */
     glScalef(0.7, 0.7, 0.7);
     glRotatef(angle2, 1.0, 0.0, 0.0);
     glRotatef(angle, 0.0, 1.0, 0.0);
@@ -31,181 +31,127 @@ void display(void)
     glRotatef((GLfloat)body, 0.0, 0.0, 1.0);
     glTranslatef(1.0, 0.0, 0.0);
     glTranslatef(0.0, 2.0, 0.0);
-    glPushMatrix();
-    glScalef(2.0, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////////////////head
-    glPushMatrix();
-    glTranslatef(0.0, 2.0, 0.0);
-    glutSolidSphere(1.0, 10.0, 10.0);
-    glPopMatrix();
-    /////////////////shoulder1
-    glPushMatrix();
-    glTranslatef(1.0, 0.7, 0.0);
+    glPushMatrix();             /* BODY STACK */
+    glScalef(2.0, 3.0, 1.0);    
+    glutWireCube(1.0);          /* drawing the actual body center */
+    glPopMatrix();              /* BODY STACK */
+
+    /*******************************************************
+     *                        HEAD                         *
+    ********************************************************/
+    glPushMatrix();             /* HEAD STACK */
+    glTranslatef(0.0, 2.5, 0.0);
+    glutSolidSphere(1.0, 50, 50); /* drawing the actual head */
+    glPopMatrix();              /* HEAD STACK */
+
+    /*******************************************************
+     *                        SHOULDER 1                   *
+    ********************************************************/
+    glPushMatrix();             /* ARM 1 STACK */
+    glTranslatef(1.0, 1.2, 0.0);
     glRotatef((GLfloat)shoulder1, 0.0, 0.0, 1.0);
     glTranslatef(1.0, 0.0, 0.0);
-    glPushMatrix();
+    glPushMatrix();             /* SHOULDER 1 STACK */
     glScalef(2.0, 0.6, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////elbow1
-    glPushMatrix();
+    glutWireCube(1.0);          /* drawing the actual shoulder */
+    glPopMatrix();              /* SHOULDER 1 STACK */
+
+    /*******************************************************
+     *                        ELBOW 1                      *
+    ********************************************************/
+    glPushMatrix();             /* ELBOW 1 STACK */
     glTranslatef(1.0, 0.0, 0.0);
     glRotatef((GLfloat)elbow1, 0.0, 0.0, 1.0);
     glTranslatef(1.0, 0.0, 0.0);
-    glPushMatrix();
     glScalef(2.0, 0.6, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    glPopMatrix();
-    glPopMatrix();
+    glutWireCube(1.0);          /* drawing the actual elbow */
+    glPopMatrix();              /* ELBOW 1 STACK */
+    glPopMatrix();              /* ARM 1 STACK */
 
-
-    /////////////////shoulder2
-    glPushMatrix();
-    glTranslatef(-1.0, 0.7, 0.0);
+    /*******************************************************
+     *                        SHOULDER 2                   *
+    ********************************************************/
+    glPushMatrix();             /* ARM 2 STACK */
+    glTranslatef(-1.0, 1.2, 0.0);
     glRotatef((GLfloat)shoulder2, 0.0, 0.0, 1.0);
     glTranslatef(-1.0, 0.0, 0.0);
-    glPushMatrix();
+    glPushMatrix();             /* SHOULDER 2 STACK */
     glScalef(2.0, 0.6, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////elbow1
-    glPushMatrix();
+    glutWireCube(1.0);          /* drawing the actual shoulder */
+    glPopMatrix();              /* SHOULDER 2 STACK */
+
+    /*******************************************************
+     *                        ELBOW 2                      *
+    ********************************************************/
+    glPushMatrix();             /* ELBOW 2 STACK */
     glTranslatef(-1.0, 0.0, 0.0);
     glRotatef((GLfloat)elbow2, 0.0, 0.0, 1.0);
     glTranslatef(-1.0, 0.0, 0.0);
-    glPushMatrix();
     glScalef(2.0, 0.6, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    glPopMatrix();
-    glPopMatrix();
-    /**
-    /////////////////leg1
-    glPushMatrix();
-    glTranslatef(1.0, 0.7, 0.0);
-    glRotatef((GLfloat)leg1, 1.0, 0.0, 0.0);
-    glTranslatef(-0.35, -2.7, 0.0);
-    glPushMatrix();
-    glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////knee1
-    glPushMatrix();
-    glTranslatef(1.0, 0.0, 0.0);
-    glRotatef((GLfloat)knee1, 1.0, 0.0, 0.0);
-    glTranslatef(-1.0, -2.0, 0);
-    glPushMatrix();
-    glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    ///***
-    glPushMatrix();
-    glTranslatef(0.0, -1.3, 0.0);
-    glScalef(0.8, 0.7, 2.0);
-    glutSolidCube(1.0);
-    glPopMatrix();
-    glPopMatrix();
-    glPopMatrix();*/
+    glutWireCube(1.0);          /* drawing the actual elbow */
+    glPopMatrix();              /* ELBOW 2 STACK */
+    glPopMatrix();              /* ARM 2 STACK */
 
-    /////////////////leg1--
-    glPushMatrix();
+    /*******************************************************
+     *                        LEG 1                        *
+    ********************************************************/
+    glPushMatrix();             /* LEG 1 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)leg1, 1.0, 0.0, 0.0);
-    glTranslatef(-0.35, -0.7, 0.0);
-    glPushMatrix();
+    glTranslatef(-0.35, -1.2, 0.0);
+    glPushMatrix();             /* THIGH 1 STACK */
     glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////knee1--
-    glPushMatrix();
+    glutWireCube(1.0);          /* drawing the actual leg */
+    glPopMatrix();              /* THIGH 1 STACK */
+
+    /*******************************************************
+     *                        KNEE 1                       *
+    ********************************************************/
+    glPushMatrix();             /* LOWER LEG 1 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)knee1, 1.0, 0.0, 0.0);
     glTranslatef(-1, -0.7, 0.0);
-    glPushMatrix();
+    glPushMatrix();             /* KNEE 1 STACK */
     glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    glPushMatrix();
+    glutWireCube(1.0);          /* drawing the actual knee */
+    glPopMatrix();              /* KNEE 1 STACK */
     glTranslatef(0.0, -1.3, 0.0);
     glScalef(0.8, 0.7, 2.0);
-    glutSolidCube(1.0);
-    glPopMatrix();
-    glPopMatrix();
-    glPopMatrix();
+    glutSolidCube(1.0);         /* drawing the actual ankle */
+    glPopMatrix();              /* LOWER LEG 1 STACK */
+    glPopMatrix();              /* LEG 1 STACK */
 
-
-
-    /////////////////leg2--
-    glPushMatrix();
+    /*******************************************************
+     *                        LEG 2                        *
+    ********************************************************/
+    glPushMatrix();             /* LEG 2 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)leg2, 1.0, 0.0, 0.0);
-    glTranslatef(-1.65, -0.7, 0.0);
-    glPushMatrix();
+    glTranslatef(-1.65, -1.2, 0.0);
+    glPushMatrix();             /* THIGH 2 STACK */
     glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////knee2--
-    glPushMatrix();
+    glutWireCube(1.0);          /* drawing the actual leg */
+    glPopMatrix();              /* THIGH 2 STACK */
+
+    /*******************************************************
+     *                        KNEE 2                       *
+    ********************************************************/
+    glPushMatrix();             /* LOWER LEG 2 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)knee2, 1.0, 0.0, 0.0);
     glTranslatef(-1, -0.7, 0.0);
-    glPushMatrix();
+    glPushMatrix();             /* KNEE 2 STACK */
     glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    glPushMatrix();
+    glutWireCube(1.0);          /* drawing the actual knee */
+    glPopMatrix();              /* KNEE 2 STACK */
     glTranslatef(0.0, -1.3, 0.0);
     glScalef(0.8, 0.7, 2.0);
-    glutSolidCube(1.0);
-    glPopMatrix();
-    glPopMatrix();
-    glPopMatrix();
+    glutSolidCube(1.0);          /* drawing the actual ankle */
+    glPopMatrix();              /* LOWER LEG 2 STACK */
+    glPopMatrix();              /* LEG 2 STACK */
 
-    /*
-    /////////////////leg2
-    glPushMatrix();
-    glTranslatef(1.0, 0.7, 0.0);
-    glRotatef((GLfloat)leg2, 1.0, 0.0, 0.0);
-    glTranslatef(-1.6, -2.7, 0.0);
-    glPushMatrix();
-    glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    //////////////knee2
-    glPushMatrix();
-    glTranslatef(1.0, 0.0, 0.0);
-    glRotatef((GLfloat)knee2, 1.0, 0.0, 0.0);
-    glTranslatef(-1.0, -2.0, 0);
-    glPushMatrix();
-    glScalef(0.7, 2.0, 1.0);
-    glutWireCube(1.0);
-    glPopMatrix();
-    ///***
-    glPushMatrix();
-    glTranslatef(0.0, -1.3, 0.0);
-    glScalef(0.8, 0.7, 2.0);
-    glutSolidCube(1.0);
-    glPopMatrix();
-
-    glPopMatrix();
-    glPopMatrix();
-    */
-
-
-
-
-
-
-
-    /////////// for first puch
-    glPopMatrix();
-
-    /////////////////////////
-
-    glutSwapBuffers();
+    glPopMatrix();              /* DRAWING STACK */
+    glutSwapBuffers(); /* Swap buffers after creating the draw */
 }
 
 void reshape(int w, int h)
