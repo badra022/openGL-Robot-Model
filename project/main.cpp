@@ -5,13 +5,50 @@
 **************************************************/
 
 #include <GL/glut.h>
+#include <math.h>
+#include <stdio.h>
 
 GLfloat body = 0, shoulder1 = 0, shoulder2 = 0, elbow1 = 0, elbow2 = 0, leg1 = 0, knee1 = 0, leg2 = 0, knee2 = 0;
-int moving, startx, starty;
+GLfloat moving, startx, starty;
+double eye[] = { 0, 0, 0 };
+double center[] = {0, 0, 1.0};
+double up[] = { 0, 1, 0};
+double verticalRotationAngle = 0;
 
 
 GLfloat angle = 0.0;   /* in degrees */
 GLfloat angle2 = 0.0;   /* in degrees */
+
+
+void rotatePoint(double a[], double theta, double p[])
+{
+
+    double temp[3];
+    temp[0] = p[0];
+    temp[1] = p[1];
+    temp[2] = p[2];
+
+    temp[0] = -a[2] * p[1] + a[1] * p[2];
+    temp[1] = a[2] * p[0] - a[0] * p[2];
+    temp[2] = -a[1] * p[0] + a[0] * p[1];
+
+    temp[0] *= sin(theta);
+    temp[1] *= sin(theta);
+    temp[2] *= sin(theta);
+
+    temp[0] += (1 - cos(theta)) * (a[0] * a[0] * p[0] + a[0] * a[1] * p[1] + a[0] * a[2] * p[2]);
+    temp[1] += (1 - cos(theta)) * (a[0] * a[1] * p[0] + a[1] * a[1] * p[1] + a[1] * a[2] * p[2]);
+    temp[2] += (1 - cos(theta)) * (a[0] * a[2] * p[0] + a[1] * a[2] * p[1] + a[2] * a[2] * p[2]);
+
+    temp[0] += cos(theta) * p[0];
+    temp[1] += cos(theta) * p[1];
+    temp[2] += cos(theta) * p[2];
+
+    p[0] = temp[0];
+    p[1] = temp[1];
+    p[2] = temp[2];
+
+}
 
 
 void init(void)
@@ -24,13 +61,18 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();             /* DRAWING STACK */
+    printf("\nbefore %f %f %f", eye[0], eye[1], eye[2]);
+    rotatePoint(up, verticalRotationAngle, eye);
+    printf("\nafter %f %f %f", eye[0], eye[1], eye[2]);
+    gluLookAt(eye[0], eye[1], eye[2], center[0], center[1], center[2], up[0], up[1], up[2]);
+//    gluPerspective(90, 10, 5, -5);
     glScalef(0.7, 0.7, 0.7);
     glRotatef(angle2, 1.0, 0.0, 0.0);
     glRotatef(angle, 0.0, 1.0, 0.0);
-    glTranslatef(-1.0, 0.0, 0.0);
-    glRotatef((GLfloat)body, 0.0, 0.0, 1.0);
-    glTranslatef(1.0, 0.0, 0.0);
-    glTranslatef(0.0, 2.0, 0.0);
+//    glTranslatef(-1.0, 0.0, 0.0);
+//    glRotatef((GLfloat)body, 0.0, 0.0, 1.0);
+//    glTranslatef(1.0, 0.0, 0.0);
+    glTranslatef(0.0, 2.0, 2.0);
     glPushMatrix();             /* BODY STACK */
     glScalef(2.0, 3.0, 1.0);    
     glutWireCube(1.0);          /* drawing the actual body center */
@@ -153,6 +195,10 @@ void display(void)
     glPopMatrix();              /* DRAWING STACK */
     glutSwapBuffers(); /* Swap buffers after creating the draw */
 }
+
+
+
+
 
 void reshape(int w, int h)
 {
@@ -346,8 +392,16 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-
-
+    case 'n':
+        verticalRotationAngle = 0.1;
+        glutPostRedisplay();
+        verticalRotationAngle = 0;
+        break;
+    case 'N':
+        verticalRotationAngle = -0.1;
+        glutPostRedisplay();
+        verticalRotationAngle = 0;
+        break;
     case 27:
         exit(0);
         break;
@@ -356,7 +410,7 @@ void keyboard(unsigned char key, int x, int y)
     }
 }
 
-static void mouse(int button, int state, int x, int y)
+void mouse(int button, int state, int x, int y)
 {
     if (button == GLUT_LEFT_BUTTON) {
         if (state == GLUT_DOWN) {
@@ -371,7 +425,7 @@ static void mouse(int button, int state, int x, int y)
 }
 
 
-static void motion(int x, int y)
+void motion(int x, int y)
 {
     if (moving) {
         angle = angle + (x - startx);
