@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdio.h>
 
-GLfloat body = 0, shoulder1 = -90, shoulder2 = 90, elbow1 = 0, elbow2 = 0, leg1 = 0, knee1 = 0, leg2 = 0, knee2 = 0;
+GLfloat body = 0, shoulder1 = -90, shoulder2 = 90, elbow1 = 0, elbow2 = 0, leg1 = 0,leg1z = 0, knee1 = 0, leg2 = 0,leg2z = 0, knee2 = 0;
 GLfloat moving, startx, starty, theta = 0.0;
 double eye[] = { 0 , 0, -1 };
 double center[] = {0, 0, 4};
@@ -86,7 +86,7 @@ void displayfingers(int armNumber) {
     for (int i = 0; i < 5; i++) {
         glPushMatrix();
         glTranslatef(armNumber? 1.0:-1.6 , (i ? 0.3 : -0.2), (i ? (y + i * 0.18) : (y + i * 0.15))); // one step forward and one step in y according to finger number
-        glRotatef((GLfloat)fingerBase1[i], 0.0, 0.0, i ? -1.0 : 1.0); // rotate figerbase around -z (variable)
+        glRotatef((GLfloat) fingerBase1[i], 0.0, 0.0, i ? -1.0 : 1.0); // rotate figerbase around -z (variable)
         glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
         glPushMatrix();
         glScalef(0.3, 0.1, 0.1);
@@ -95,7 +95,7 @@ void displayfingers(int armNumber) {
 
         //Draw finger flang 1 
         glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
-        glRotatef((GLfloat)fingerUp1[i], 0.0, 0.0, i ? -1.0 : 1.0);    // rotate upperfinger around -z (variable)
+        glRotatef((GLfloat) -fingerUp1[i], 0.0, 0.0, i ? -1.0 : -1.0);    // rotate upperfinger around -z (variable)
         glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
         glPushMatrix();
         glScalef(0.3, 0.1, 0.1);
@@ -196,6 +196,7 @@ void display(void)
     glPushMatrix();             /* LEG 1 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)leg1, 1.0, 0.0, 0.0);
+    glRotatef((GLfloat)leg1z, 0.0, 0.0, 1.0);
     glTranslatef(-0.35, -1.2, 0.0);
     glPushMatrix();             /* THIGH 1 STACK */
     glScalef(0.7, 2.0, 1.0);
@@ -225,7 +226,8 @@ void display(void)
     glPushMatrix();             /* LEG 2 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)leg2, 1.0, 0.0, 0.0);
-    glTranslatef(-1.65, -1.2, 0.0);
+    glRotatef((GLfloat)leg2z, 0.0, 0.0, -1.0);
+    glTranslatef(-1.53, -1.2, 0.0);
     glPushMatrix();             /* THIGH 2 STACK */
     glScalef(0.7, 2.0, 1.0);
     glutWireCube(1.0);          /* drawing the actual leg */
@@ -417,6 +419,31 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
+        //
+        case 'z':
+        if (leg1z >= 90)
+        {
+            leg1z = 90;
+        }
+        else
+        {
+            leg1z = (leg1z + 5);
+            glutPostRedisplay();
+        }
+        break;
+    case 'Z':
+        if (leg1z <= -90)
+        {
+            leg1z = -90;
+        }
+        else
+        {
+            leg1z = (leg1z - 5);
+            glutPostRedisplay();
+        }
+        break;
+        //
+    
     case 't':
         if (knee1 <= -90)
         {
@@ -461,6 +488,29 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
+    case '2':
+        if (leg2z >= 90)
+        {
+            leg2z = 90;
+        }
+        else
+        {
+            leg2z = (leg2z + 5);
+            glutPostRedisplay();
+        }
+        break;
+    case '3':
+        if (leg2z <= -90)
+        {
+            leg2z = -90;
+        }
+        else
+        {
+            leg2z = (leg2z - 5);
+            glutPostRedisplay();
+        }
+        break;
+        //
     case 'e':
         if (knee2 <= -90)
         {
