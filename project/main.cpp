@@ -8,17 +8,19 @@
 #include <math.h>
 #include <stdio.h>
 
-GLfloat body = 0, shoulder1 = 0, shoulder2 = 0, elbow1 = 0, elbow2 = 0, leg1 = 0, knee1 = 0, leg2 = 0, knee2 = 0;
-GLfloat moving, startx, starty;
-double eye[] = { 0, 0, 0 };
-double center[] = {0, 0, 1.0};
+GLfloat body = 0, shoulder1 = -90, shoulder2 = 90, elbow1 = 0, elbow2 = 0, leg1 = 0, knee1 = 0, leg2 = 0, knee2 = 0;
+GLfloat moving, startx, starty, theta = 0.0;
+double eye[] = { 0 , 0, -1 };
+double center[] = {0, 0, 4};
 double up[] = { 0, 1, 0};
-double verticalRotationAngle = 0;
-
+double perpendicularAxis[] = { 0, 0, 0 };
+GLfloat Znear = 1.0;
+int windowWidth;
+int windowHeight;
+int fingerBase[5] = { 0 }, fingerUp[5] = { 0 };
 
 GLfloat angle = 0.0;   /* in degrees */
 GLfloat angle2 = 0.0;   /* in degrees */
-
 
 void rotatePoint(double a[], double theta, double p[])
 {
@@ -50,29 +52,68 @@ void rotatePoint(double a[], double theta, double p[])
 
 }
 
+void crossProduct(double a[], double b[], double c[])
+{
+    c[0] = a[1] * b[2] - a[2] * b[1];
+    c[1] = a[2] * b[0] - a[0] * b[2];
+    c[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+void normalize(double a[])
+{
+    double norm;
+    norm = a[0] * a[0] + a[1] * a[1] + a[2] * a[2];
+    norm = sqrt(norm);
+    a[0] /= norm;
+    a[1] /= norm;
+    a[2] /= norm;
+}
+
 
 void init(void)
 {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_FLAT);
 }
+#define ARM1 1
+#define ARM2 0
+
+void displayfingers(int armNumber) {
+    float y = -0.3;
+    for (int i = 0; i < 5; i++) {
+        glPushMatrix();
+        glTranslatef(armNumber? 1.0:-1.6 , (i ? 0.3 : -0.2), (i ? (y + i * 0.18) : (y + i * 0.15))); // one step forward and one step in y according to finger number
+        glRotatef((GLfloat)fingerBase[i], 0.0, 0.0, i ? -1.0 : 1.0); // rotate figerbase around -z (variable)
+        glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
+        glPushMatrix();
+        glScalef(0.3, 0.1, 0.1);
+        glutWireCube(1);                            // DRAW THE FINGERBASE
+        glPopMatrix();
+
+        //Draw finger flang 1 
+        glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
+        glRotatef((GLfloat)fingerUp[i], 0.0, 0.0, i ? -1.0 : 1.0);    // rotate upperfinger around -z (variable)
+        glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
+        glPushMatrix();
+        glScalef(0.3, 0.1, 0.1);
+        glutWireCube(1);                            // DRAW THE UPPERFINGER
+        glPopMatrix();
+        glPopMatrix();
+    }
+}
+
 
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();             /* DRAWING STACK */
-    printf("\nbefore %f %f %f", eye[0], eye[1], eye[2]);
-    rotatePoint(up, verticalRotationAngle, eye);
-    printf("\nafter %f %f %f", eye[0], eye[1], eye[2]);
     gluLookAt(eye[0], eye[1], eye[2], center[0], center[1], center[2], up[0], up[1], up[2]);
+//    gluLookAt(2 * cos(theta),0.0 , 2 * sin(theta), -2 * cos(theta),0.0 , -2 * sin(theta), up[0], up[1], up[2]);
 //    gluPerspective(90, 10, 5, -5);
     glScalef(0.7, 0.7, 0.7);
     glRotatef(angle2, 1.0, 0.0, 0.0);
     glRotatef(angle, 0.0, 1.0, 0.0);
-//    glTranslatef(-1.0, 0.0, 0.0);
-//    glRotatef((GLfloat)body, 0.0, 0.0, 1.0);
-//    glTranslatef(1.0, 0.0, 0.0);
-    glTranslatef(0.0, 2.0, 2.0);
+    glTranslatef(0.0, 2.0, 1.0);
     glPushMatrix();             /* BODY STACK */
     glScalef(2.0, 3.0, 1.0);    
     glutWireCube(1.0);          /* drawing the actual body center */
@@ -90,7 +131,7 @@ void display(void)
      *                        SHOULDER 1                   *
     ********************************************************/
     glPushMatrix();             /* ARM 1 STACK */
-    glTranslatef(1.0, 1.2, 0.0);
+    glTranslatef(1.5, 1.2, 0.0);
     glRotatef((GLfloat)shoulder1, 0.0, 0.0, 1.0);
     glTranslatef(1.0, 0.0, 0.0);
     glPushMatrix();             /* SHOULDER 1 STACK */
@@ -105,8 +146,15 @@ void display(void)
     glTranslatef(1.0, 0.0, 0.0);
     glRotatef((GLfloat)elbow1, 0.0, 0.0, 1.0);
     glTranslatef(1.0, 0.0, 0.0);
+    glPushMatrix();             /* ELBOW DRAW STACK */
     glScalef(2.0, 0.6, 1.0);
     glutWireCube(1.0);          /* drawing the actual elbow */
+    glPopMatrix();              /* ELBOW DRAW STACK */
+
+    /********************************************************
+     *                        FINGERS 1                     *
+     ********************************************************/
+    displayfingers(ARM1);
     glPopMatrix();              /* ELBOW 1 STACK */
     glPopMatrix();              /* ARM 1 STACK */
 
@@ -114,7 +162,7 @@ void display(void)
      *                        SHOULDER 2                   *
     ********************************************************/
     glPushMatrix();             /* ARM 2 STACK */
-    glTranslatef(-1.0, 1.2, 0.0);
+    glTranslatef(-1.5, 1.2, 0.0);
     glRotatef((GLfloat)shoulder2, 0.0, 0.0, 1.0);
     glTranslatef(-1.0, 0.0, 0.0);
     glPushMatrix();             /* SHOULDER 2 STACK */
@@ -129,8 +177,15 @@ void display(void)
     glTranslatef(-1.0, 0.0, 0.0);
     glRotatef((GLfloat)elbow2, 0.0, 0.0, 1.0);
     glTranslatef(-1.0, 0.0, 0.0);
+    glPushMatrix();             /* ELBOW DRAW STACK */
     glScalef(2.0, 0.6, 1.0);
     glutWireCube(1.0);          /* drawing the actual elbow */
+    glPopMatrix();              /* ELBOW DRAW STACK */
+
+    /********************************************************
+     *                        FINGERS 2                     *
+     ********************************************************/
+    displayfingers(ARM2);
     glPopMatrix();              /* ELBOW 2 STACK */
     glPopMatrix();              /* ARM 2 STACK */
 
@@ -196,16 +251,15 @@ void display(void)
     glutSwapBuffers(); /* Swap buffers after creating the draw */
 }
 
-
-
-
-
 void reshape(int w, int h)
 {
+    windowWidth = w;
+    windowHeight = h;
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(85.0, (GLfloat)w / (GLfloat)h, 1.0, 20.0);
+    printf("\n%f", Znear);
+    gluPerspective(85.0, (GLfloat)w / (GLfloat)h, Znear, 20.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.0, 0.0, -5.0);
@@ -215,10 +269,46 @@ void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
     {
+    case 'w':
+        crossProduct(up, center, perpendicularAxis);
+        normalize(perpendicularAxis);
+        rotatePoint(perpendicularAxis, 0.05, center);
+        rotatePoint(perpendicularAxis, 0.05, up);
+        glutPostRedisplay();
+        break;
     case 's':
-        if (shoulder1 >= 90)
+        crossProduct(up, center, perpendicularAxis);
+        normalize(perpendicularAxis);
+        rotatePoint(perpendicularAxis, -0.05, center);
+        rotatePoint(perpendicularAxis, -0.05, up);
+        glutPostRedisplay();
+        break;
+    case 'a':
+        rotatePoint(up, -0.05, center);
+        glutPostRedisplay();
+        break;
+    case 'd':
+        rotatePoint(up, 0.05, center);
+        glutPostRedisplay();
+        break;
+    case 'q':
+        Znear += 1.0;
+        //reshape(windowWidth, windowHeight);
+        glutPostRedisplay();
+        break;
+    case 'Q':
+        Znear -= 1.0;
+        //reshape(windowWidth, windowHeight);
+        glutPostRedisplay();
+        break;
+    case 'p':
+        if (shoulder1 < -90)
         {
-            shoulder1 = 90;
+            shoulder1 = -90;
+        }
+        else if (shoulder1 >= 45)
+        {
+            shoulder1 = 45;
         }
         else
         {
@@ -226,10 +316,14 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'S':
-        if (shoulder1 <= -90)
+    case 'P':
+        if (shoulder1 < -90)
         {
             shoulder1 = -90;
+        }
+        else if (shoulder1 >= 45)
+        {
+            shoulder1 = 45;
         }
         else
         {
@@ -237,21 +331,14 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'q':
-        if (shoulder2 >= 90)
+    case 'o':
+        if (shoulder2 > 90)
         {
             shoulder2 = 90;
         }
-        else
+        else if (shoulder2 <= -45)
         {
-            shoulder2 = (shoulder2 + 5);
-            glutPostRedisplay();
-        }
-        break;
-    case 'Q':
-        if (shoulder2 <= -90)
-        {
-            shoulder2 = -90;
+            shoulder2 = -45;
         }
         else
         {
@@ -259,8 +346,23 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
+    case 'O':
+        if (shoulder2 > 90)
+        {
+            shoulder2 = 90;
+        }
+        else if (shoulder2 <= -45)
+        {
+            shoulder2 = -45;
+        }
+        else
+        {
+            shoulder2 = (shoulder2 + 5);
+            glutPostRedisplay();
+        }
+        break;
 
-    case 'e':
+    case 'i':
         if (elbow1 >= 150)
         {
             elbow1 = 150;
@@ -271,7 +373,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'E':
+    case 'I':
         if (elbow1 <= 0)
         {
             elbow1 = 0;
@@ -282,7 +384,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'm':
+    case 'u':
         if (elbow2 >= 150)
         {
             elbow2 = 150;
@@ -293,7 +395,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'M':
+    case 'U':
         if (elbow2 <= 0)
         {
             elbow2 = 0;
@@ -304,7 +406,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'l':
+    case 'y':
         if (leg1 >= 90)
         {
             leg1 = 90;
@@ -315,7 +417,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'L':
+    case 'Y':
         if (leg1 <= -90)
         {
             leg1 = -90;
@@ -326,21 +428,10 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'k':
-        if (knee1 >= 90)
+    case 't':
+        if (knee1 <= -90)
         {
-            knee1 = 90;
-        }
-        else
-        {
-            knee1 = (knee1 + 5);
-            glutPostRedisplay();
-        }
-        break;
-    case 'K':
-        if (knee1 <= 0)
-        {
-            knee1 = 0;
+            knee1 = -90;
         }
         else
         {
@@ -348,7 +439,18 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'p':
+    case 'T':
+        if (knee1 >= 0)
+        {
+            knee1 = 0;
+        }
+        else
+        {
+            knee1 = (knee1 + 5);
+            glutPostRedisplay();
+        }
+        break;
+    case 'r':
         if (leg2 >= 90)
         {
             leg2 = 90;
@@ -359,7 +461,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'P':
+    case 'R':
         if (leg2 <= -90)
         {
             leg2 = -90;
@@ -370,21 +472,10 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'o':
-        if (knee2 >= 90)
+    case 'e':
+        if (knee2 <= -90)
         {
-            knee2 = 90;
-        }
-        else
-        {
-            knee2 = (knee2 + 5);
-            glutPostRedisplay();
-        }
-        break;
-    case 'O':
-        if (knee2 <= 0)
-        {
-            knee2 = 0;
+            knee2 = -90;
         }
         else
         {
@@ -392,15 +483,116 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
-    case 'n':
-        verticalRotationAngle = 0.1;
+    case 'E':
+        if (knee2 >= 0)
+        {
+            knee2 = 0;
+        }
+        else
+        {
+            knee2 = (knee2 + 5);
+            glutPostRedisplay();
+        }
+        break;
+    case 'l':
+        if (fingerBase[0] < 90)
+            fingerBase[0] = (fingerBase[0] + 5) % 360;
         glutPostRedisplay();
-        verticalRotationAngle = 0;
+        break;
+    case 'L':
+        if (fingerBase[0] > 0)
+            fingerBase[0] = (fingerBase[0] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'k':
+        if (fingerUp[0] < 90)
+            fingerUp[0] = (fingerUp[0] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'K':
+        if (fingerUp[0] > 0)
+            fingerUp[0] = (fingerUp[0] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'j':
+        if (fingerBase[1] < 90)
+            fingerBase[1] = (fingerBase[1] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'J':
+        if (fingerBase[1] > 0)
+            fingerBase[1] = (fingerBase[1] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'h':
+        if (fingerUp[1] < 90)
+            fingerUp[1] = (fingerUp[1] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'H':
+        if (fingerUp[1] > 0)
+            fingerUp[1] = (fingerUp[1] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'g':
+        if (fingerBase[2] < 90)
+            fingerBase[2] = (fingerBase[2] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'G':
+        if (fingerBase[2] > 0)
+            fingerBase[2] = (fingerBase[2] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'f':
+        if (fingerUp[2] < 90)
+            fingerUp[2] = (fingerUp[2] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'F':
+        if (fingerUp[2] > 0)
+            fingerUp[2] = (fingerUp[2] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'm':
+        if (fingerBase[3] < 90)
+            fingerBase[3] = (fingerBase[3] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'M':
+        if (fingerBase[3] > 0)
+            fingerBase[3] = (fingerBase[3] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'n':
+        if (fingerUp[3] < 90)
+            fingerUp[3] = (fingerUp[3] + 5) % 360;
+        glutPostRedisplay();
         break;
     case 'N':
-        verticalRotationAngle = -0.1;
+        if (fingerUp[3] > 0)
+            fingerUp[3] = (fingerUp[3] - 5) % 360;
         glutPostRedisplay();
-        verticalRotationAngle = 0;
+        break;
+    case 'b':
+        if (fingerBase[4] < 90)
+            fingerBase[4] = (fingerBase[4] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'B':
+        if (fingerBase[4] > 0)
+            fingerBase[4] = (fingerBase[4] - 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'v':
+        if (fingerUp[4] < 90)
+            fingerUp[4] = (fingerUp[4] + 5) % 360;
+        glutPostRedisplay();
+        break;
+    case 'V':
+        if (fingerUp[4] > 0)
+            fingerUp[4] = (fingerUp[4] - 5) % 360;
+        glutPostRedisplay();
         break;
     case 27:
         exit(0);
@@ -428,8 +620,16 @@ void mouse(int button, int state, int x, int y)
 void motion(int x, int y)
 {
     if (moving) {
+        /*
         angle = angle + (x - startx);
-        angle2 = angle2 + (y - starty);
+        angle2 = angle2 + (y - starty);*/
+        int dx = x - startx;
+        int dy = y - starty;
+        rotatePoint(up, -(dx % 360) * 0.01 , center);
+        crossProduct(up, center, perpendicularAxis);
+        normalize(perpendicularAxis);
+        rotatePoint(perpendicularAxis, -dy * 0.01, center);
+        rotatePoint(perpendicularAxis, -dy * 0.01, up);
         startx = x;
         starty = y;
         glutPostRedisplay();
