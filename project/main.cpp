@@ -14,10 +14,11 @@ double eye[] = { 0 , 0, -1 };
 double center[] = {0, 0, 4};
 double up[] = { 0, 1, 0};
 double perpendicularAxis[] = { 0, 0, 0 };
-GLfloat Znear = 1.0;
+GLfloat Znear = 100.0;
 int windowWidth;
 int windowHeight;
-int fingerBase[5] = { 0 }, fingerUp[5] = { 0 };
+int fingerBase1[5] = { 0 }, fingerUp1[5] = { 0 };
+int fingerBase2[5] = { 0 }, fingerUp2[5] = { 0 };
 
 GLfloat angle = 0.0;   /* in degrees */
 GLfloat angle2 = 0.0;   /* in degrees */
@@ -83,7 +84,7 @@ void displayfingers(int armNumber) {
     for (int i = 0; i < 5; i++) {
         glPushMatrix();
         glTranslatef(armNumber? 1.0:-1.6 , (i ? 0.3 : -0.2), (i ? (y + i * 0.18) : (y + i * 0.15))); // one step forward and one step in y according to finger number
-        glRotatef((GLfloat)fingerBase[i], 0.0, 0.0, i ? -1.0 : 1.0); // rotate figerbase around -z (variable)
+        glRotatef((GLfloat)fingerBase1[i], 0.0, 0.0, i ? -1.0 : 1.0); // rotate figerbase around -z (variable)
         glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
         glPushMatrix();
         glScalef(0.3, 0.1, 0.1);
@@ -92,7 +93,7 @@ void displayfingers(int armNumber) {
 
         //Draw finger flang 1 
         glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
-        glRotatef((GLfloat)fingerUp[i], 0.0, 0.0, i ? -1.0 : 1.0);    // rotate upperfinger around -z (variable)
+        glRotatef((GLfloat)fingerUp1[i], 0.0, 0.0, i ? -1.0 : 1.0);    // rotate upperfinger around -z (variable)
         glTranslatef(0.15, 0.0, 0.0);                   // step 0.15 forward
         glPushMatrix();
         glScalef(0.3, 0.1, 0.1);
@@ -108,8 +109,6 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();             /* DRAWING STACK */
     gluLookAt(eye[0], eye[1], eye[2], center[0], center[1], center[2], up[0], up[1], up[2]);
-//    gluLookAt(2 * cos(theta),0.0 , 2 * sin(theta), -2 * cos(theta),0.0 , -2 * sin(theta), up[0], up[1], up[2]);
-//    gluPerspective(90, 10, 5, -5);
     glScalef(0.7, 0.7, 0.7);
     glRotatef(angle2, 1.0, 0.0, 0.0);
     glRotatef(angle, 0.0, 1.0, 0.0);
@@ -259,7 +258,7 @@ void reshape(int w, int h)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     printf("\n%f", Znear);
-    gluPerspective(85.0, (GLfloat)w / (GLfloat)h, Znear, 20.0);
+    gluPerspective(Znear, (GLfloat)w / (GLfloat)h, 0.0, 20.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.0, 0.0, -5.0);
@@ -292,24 +291,24 @@ void keyboard(unsigned char key, int x, int y)
         glutPostRedisplay();
         break;
     case 'q':
-        Znear += 1.0;
-        //reshape(windowWidth, windowHeight);
+        if (Znear > 120) { Znear = 120; }
+        else if (Znear <= 60) { Znear = 60; }
+        else 
+            Znear -= 1.0;
+
+        reshape(windowWidth, windowHeight);
         glutPostRedisplay();
         break;
     case 'Q':
-        Znear -= 1.0;
-        //reshape(windowWidth, windowHeight);
+        if (Znear >= 120) { Znear = 120; }
+        else if (Znear < 60) { Znear = 60; }
+        else
+            Znear += 1.0;
+        reshape(windowWidth, windowHeight);
         glutPostRedisplay();
         break;
     case 'p':
-        if (shoulder1 < -90)
-        {
-            shoulder1 = -90;
-        }
-        else if (shoulder1 >= 45)
-        {
-            shoulder1 = 45;
-        }
+        if (shoulder1 > 45){ shoulder1 = 45; }
         else
         {
             shoulder1 = (shoulder1 + 5);
@@ -317,13 +316,9 @@ void keyboard(unsigned char key, int x, int y)
         }
         break;
     case 'P':
-        if (shoulder1 < -90)
+        if (shoulder1 <= -90)
         {
             shoulder1 = -90;
-        }
-        else if (shoulder1 >= 45)
-        {
-            shoulder1 = 45;
         }
         else
         {
@@ -332,11 +327,7 @@ void keyboard(unsigned char key, int x, int y)
         }
         break;
     case 'o':
-        if (shoulder2 > 90)
-        {
-            shoulder2 = 90;
-        }
-        else if (shoulder2 <= -45)
+        if (shoulder2 <= -45)
         {
             shoulder2 = -45;
         }
@@ -350,10 +341,6 @@ void keyboard(unsigned char key, int x, int y)
         if (shoulder2 > 90)
         {
             shoulder2 = 90;
-        }
-        else if (shoulder2 <= -45)
-        {
-            shoulder2 = -45;
         }
         else
         {
@@ -495,103 +482,103 @@ void keyboard(unsigned char key, int x, int y)
         }
         break;
     case 'l':
-        if (fingerBase[0] < 90)
-            fingerBase[0] = (fingerBase[0] + 5) % 360;
+        if (fingerBase1[0] < 90)
+            fingerBase1[0] = (fingerBase1[0] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'L':
-        if (fingerBase[0] > 0)
-            fingerBase[0] = (fingerBase[0] - 5) % 360;
+        if (fingerBase1[0] > 0)
+            fingerBase1[0] = (fingerBase1[0] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'k':
-        if (fingerUp[0] < 90)
-            fingerUp[0] = (fingerUp[0] + 5) % 360;
+        if (fingerUp1[0] < 90)
+            fingerUp1[0] = (fingerUp1[0] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'K':
-        if (fingerUp[0] > 0)
-            fingerUp[0] = (fingerUp[0] - 5) % 360;
+        if (fingerUp1[0] > 0)
+            fingerUp1[0] = (fingerUp1[0] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'j':
-        if (fingerBase[1] < 90)
-            fingerBase[1] = (fingerBase[1] + 5) % 360;
+        if (fingerBase1[1] < 90)
+            fingerBase1[1] = (fingerBase1[1] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'J':
-        if (fingerBase[1] > 0)
-            fingerBase[1] = (fingerBase[1] - 5) % 360;
+        if (fingerBase1[1] > 0)
+            fingerBase1[1] = (fingerBase1[1] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'h':
-        if (fingerUp[1] < 90)
-            fingerUp[1] = (fingerUp[1] + 5) % 360;
+        if (fingerUp1[1] < 90)
+            fingerUp1[1] = (fingerUp1[1] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'H':
-        if (fingerUp[1] > 0)
-            fingerUp[1] = (fingerUp[1] - 5) % 360;
+        if (fingerUp1[1] > 0)
+            fingerUp1[1] = (fingerUp1[1] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'g':
-        if (fingerBase[2] < 90)
-            fingerBase[2] = (fingerBase[2] + 5) % 360;
+        if (fingerBase1[2] < 90)
+            fingerBase1[2] = (fingerBase1[2] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'G':
-        if (fingerBase[2] > 0)
-            fingerBase[2] = (fingerBase[2] - 5) % 360;
+        if (fingerBase1[2] > 0)
+            fingerBase1[2] = (fingerBase1[2] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'f':
-        if (fingerUp[2] < 90)
-            fingerUp[2] = (fingerUp[2] + 5) % 360;
+        if (fingerUp1[2] < 90)
+            fingerUp1[2] = (fingerUp1[2] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'F':
-        if (fingerUp[2] > 0)
-            fingerUp[2] = (fingerUp[2] - 5) % 360;
+        if (fingerUp1[2] > 0)
+            fingerUp1[2] = (fingerUp1[2] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'm':
-        if (fingerBase[3] < 90)
-            fingerBase[3] = (fingerBase[3] + 5) % 360;
+        if (fingerBase1[3] < 90)
+            fingerBase1[3] = (fingerBase1[3] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'M':
-        if (fingerBase[3] > 0)
-            fingerBase[3] = (fingerBase[3] - 5) % 360;
+        if (fingerBase1[3] > 0)
+            fingerBase1[3] = (fingerBase1[3] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'n':
-        if (fingerUp[3] < 90)
-            fingerUp[3] = (fingerUp[3] + 5) % 360;
+        if (fingerUp1[3] < 90)
+            fingerUp1[3] = (fingerUp1[3] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'N':
-        if (fingerUp[3] > 0)
-            fingerUp[3] = (fingerUp[3] - 5) % 360;
+        if (fingerUp1[3] > 0)
+            fingerUp1[3] = (fingerUp1[3] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'b':
-        if (fingerBase[4] < 90)
-            fingerBase[4] = (fingerBase[4] + 5) % 360;
+        if (fingerBase1[4] < 90)
+            fingerBase1[4] = (fingerBase1[4] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'B':
-        if (fingerBase[4] > 0)
-            fingerBase[4] = (fingerBase[4] - 5) % 360;
+        if (fingerBase1[4] > 0)
+            fingerBase1[4] = (fingerBase1[4] - 5) % 360;
         glutPostRedisplay();
         break;
     case 'v':
-        if (fingerUp[4] < 90)
-            fingerUp[4] = (fingerUp[4] + 5) % 360;
+        if (fingerUp1[4] < 90)
+            fingerUp1[4] = (fingerUp1[4] + 5) % 360;
         glutPostRedisplay();
         break;
     case 'V':
-        if (fingerUp[4] > 0)
-            fingerUp[4] = (fingerUp[4] - 5) % 360;
+        if (fingerUp1[4] > 0)
+            fingerUp1[4] = (fingerUp1[4] - 5) % 360;
         glutPostRedisplay();
         break;
     case 27:
