@@ -2,6 +2,8 @@
  * Contibutors ::-- Hassan Hosni Abdel_Aleem     *
  *                  Mohamed Khaled Galloul       *
  *                  Ahmed Mohamed Mohamed        *
+ *                  Moamen Gamal Ashmawy         *
+ *                  Youssef Mahmoud Elhely       *
 **************************************************/
 
 #include <GL/glut.h>
