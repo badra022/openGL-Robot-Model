@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdio.h>
 
-GLfloat body = 0, shoulder1 = -90, shoulder2 = 90, elbow1 = 0, elbow2 = 0, leg1 = 0,leg1z = 0, knee1 = 0, leg2 = 0,leg2z = 0, knee2 = 0;
+GLfloat body = 0, shoulder1 = 0,shoulder10 = 0, shoulder2 = 0, shoulder20 = 0, elbow1 = 0, elbow2 = 0, leg1 = 0,leg1z = 0, knee1 = 0, leg2 = 0,leg2z = 0, knee2 = 0;
 GLfloat moving, startx, starty, theta = 0.0;
 double eye[] = { 0 , 0, -1 };
 double center[] = {0, 0, 4};
@@ -134,6 +134,8 @@ void display(void)
     glPushMatrix();             /* ARM 1 STACK */
     glTranslatef(1.5, 1.2, 0.0);
     glRotatef((GLfloat)shoulder1, 0.0, 0.0, 1.0);
+    glTranslatef(0.0, 0.0, 0.0);
+    glRotatef((GLfloat)shoulder10, 0.0, 1.0, 0.0);
     glTranslatef(1.0, 0.0, 0.0);
     glPushMatrix();             /* SHOULDER 1 STACK */
     glScalef(2.0, 0.6, 1.0);
@@ -165,6 +167,8 @@ void display(void)
     glPushMatrix();             /* ARM 2 STACK */
     glTranslatef(-1.5, 1.2, 0.0);
     glRotatef((GLfloat)shoulder2, 0.0, 0.0, 1.0);
+    glTranslatef(0.0, 0.0, 0.0);
+    glRotatef((GLfloat)shoulder20, 0.0, 1.0, 0.0);
     glTranslatef(-1.0, 0.0, 0.0);
     glPushMatrix();             /* SHOULDER 2 STACK */
     glScalef(2.0, 0.6, 1.0);
@@ -226,7 +230,9 @@ void display(void)
     glPushMatrix();             /* LEG 2 STACK */
     glTranslatef(1.0, -1.35, 0.0);
     glRotatef((GLfloat)leg2, 1.0, 0.0, 0.0);
-    glRotatef((GLfloat)leg2z, 0.0, 0.0, -1.0);
+    glTranslatef(-1.2, -0.0, 0.0);
+    glRotatef((GLfloat)leg2z, 0.0, 0.0, 1.0);
+    glTranslatef(1.0, 0.0, 0.0);
     glTranslatef(-1.53, -1.2, 0.0);
     glPushMatrix();             /* THIGH 2 STACK */
     glScalef(0.7, 2.0, 1.0);
@@ -311,6 +317,26 @@ void keyboard(unsigned char key, int x, int y)
         reshape(windowWidth, windowHeight);
         glutPostRedisplay();
         break;
+    case '7':
+        if (shoulder10 > 150){ shoulder10 = 150; }
+        else
+        {
+            shoulder10 = (shoulder10 + 5);
+            glutPostRedisplay();
+        }
+        break;
+    case '8':
+        if (shoulder10 <= -90)
+        {
+            shoulder10 = -90;
+        }
+        else
+        {
+            shoulder10 = (shoulder10 - 5);
+            glutPostRedisplay();
+        }
+        break;
+        ////////
     case 'p':
         if (shoulder1 > 45){ shoulder1 = 45; }
         else
@@ -330,6 +356,7 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
+        ///////////
     case 'o':
         if (shoulder2 <= -45)
         {
@@ -352,6 +379,30 @@ void keyboard(unsigned char key, int x, int y)
             glutPostRedisplay();
         }
         break;
+        ////
+    case '9':
+        if (shoulder20 <= -150)
+        {
+            shoulder20 = -150;
+        }
+        else
+        {
+            shoulder20 = (shoulder20 - 5);
+            glutPostRedisplay();
+        }
+        break;
+    case '6':
+        if (shoulder20 > 90)
+        {
+            shoulder20 = 90;
+        }
+        else
+        {
+            shoulder20 = (shoulder20 + 5);
+            glutPostRedisplay();
+        }
+        break;
+        ////
 
     case 'i':
         if (elbow1 >= 150)
